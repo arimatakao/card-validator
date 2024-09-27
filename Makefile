@@ -9,6 +9,9 @@ build:
 	mkdir $(BIN_DIR)
 	go build -o $(BIN_DIR)/$(BINARY) $(MAIN)
 
+test:
+	go test -v ./...
+
 install:
 	go install
 
