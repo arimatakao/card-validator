@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"github.com/arimatakao/card-validator/validator"
 )
 
 type server struct {
@@ -60,11 +62,21 @@ func validation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var card Card
+
+	if err := json.NewDecoder(r.Body).Decode(&card); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	isValid, errValid := validator.IsValid(*card.CardNumber,
+		*card.ExpirationMonth, *card.ExpirationYear)
+
 	WriteJSON(w, http.StatusOK, ApiResponse{
-		Valid: false,
+		Valid: isValid,
 		Error: &ErrorValidation{
-			Code:    123,
-			Message: "Test error message",
+			Code:    errValid.GetCode(),
+			Message: errValid.GetMessage(),
 		},
 	})
 }
