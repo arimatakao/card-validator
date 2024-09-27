@@ -12,6 +12,7 @@ Simple REST API for validating bank cards
 - Validate card number using the Luhn algorithm;
 - Logging;
 - Graceful shutdown;
+- Unit tests for validation func.
 
 # Installation ⚙️
 
@@ -54,6 +55,23 @@ For shutdown server send `SIGINT` signal (press `Ctrl + C`) in terminal and get 
 ...
 2024/09/27 12:35:11 Shutdown server
 2024/09/27 21:35:14 Shutdown is successful
+```
+
+# Run tests 🚩
+
+Natively:
+
+```sh
+make test
+#or
+go test -v ./...
+```
+
+Run tests in docker:
+
+```sh
+docker build -f Dockerfile-test -t card-validator-test:latest .
+docker run card-validator-test
 ```
 
 # Usage examples 📦
