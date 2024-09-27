@@ -15,7 +15,7 @@ type server struct {
 func New(address string) server {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/api/validation", validation)
+	mux.HandleFunc("/api/validation", Validation)
 
 	return server{
 		srv: &http.Server{
@@ -45,8 +45,8 @@ type ApiResponse struct {
 }
 
 type ErrorValidation struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int    `json:"code,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 func WriteJSON(w http.ResponseWriter, statusCode int, response ApiResponse) {
@@ -56,7 +56,7 @@ func WriteJSON(w http.ResponseWriter, statusCode int, response ApiResponse) {
 	w.Write(jsonBody)
 }
 
-func validation(w http.ResponseWriter, r *http.Request) {
+func Validation(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -72,11 +72,19 @@ func validation(w http.ResponseWriter, r *http.Request) {
 	isValid, errValid := validator.IsValid(*card.CardNumber,
 		*card.ExpirationMonth, *card.ExpirationYear)
 
+	if errValid != nil {
+		WriteJSON(w, http.StatusOK, ApiResponse{
+			Valid: isValid,
+			Error: &ErrorValidation{
+				Code:    errValid.GetCode(),
+				Message: errValid.GetMessage(),
+			},
+		})
+		return
+	}
+
 	WriteJSON(w, http.StatusOK, ApiResponse{
 		Valid: isValid,
-		Error: &ErrorValidation{
-			Code:    errValid.GetCode(),
-			Message: errValid.GetMessage(),
-		},
+		Error: nil,
 	})
 }

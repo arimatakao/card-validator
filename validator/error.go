@@ -6,15 +6,26 @@ type ValidErr interface {
 }
 
 const (
-	ErrUnknown int = iota + 1
-	ErrNumber
-	ErrMonth
-	ErrYear
+	ErrNumberLenght = iota + 1
+	ErrNumberMalformated
+	ErrNumberNotValid
+	ErrMonthEmpty
+	ErrMonthNotNumber
+	ErrYearEmpty
+	ErrYearNotNumber
+	ErrDateExpired
 )
 
 type validationError struct {
 	Code    int
 	Message string
+}
+
+func newErr(code int, message string) validationError {
+	return validationError{
+		Code:    code,
+		Message: message,
+	}
 }
 
 func (e validationError) GetCode() int {
