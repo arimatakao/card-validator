@@ -19,12 +19,20 @@ func IsValid(cardNumber string, expirationMonth string, expirationYear string) (
 		return false, newErr(ErrMonthNotNumber, "Expiration month must be a number")
 	}
 
+	if monthNumber > 12 || monthNumber < 1 {
+		return false, newErr(ErrMonthNotValid, "Expiration month is not valid")
+	}
+
 	if expirationYear == "" {
 		return false, newErr(ErrYearEmpty, "Expiration year field is required")
 	}
 	yearNumber, err := strconv.Atoi(expirationYear)
 	if err != nil {
 		return false, newErr(ErrYearNotNumber, "Expiration year must be a number")
+	}
+
+	if yearNumber < 1958 {
+		return false, newErr(ErrYearNotValid, "Expiration year is not valid")
 	}
 
 	// Check expiration date

@@ -11,8 +11,10 @@ const (
 	ErrNumberNotValid
 	ErrMonthEmpty
 	ErrMonthNotNumber
+	ErrMonthNotValid
 	ErrYearEmpty
 	ErrYearNotNumber
+	ErrYearNotValid
 	ErrDateExpired
 )
 
