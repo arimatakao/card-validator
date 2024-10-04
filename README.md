@@ -242,6 +242,32 @@ curl --request POST \
   --header 'Content-Type: application/json' \
   --data '{
 	"card_number": "5390802565179716",
+	"expiration_month": "13",
+	"expiration_year": "2030"
+}'
+```
+
+Response:
+
+```json
+{
+	"valid": false,
+	"error": {
+		"code": 6,
+		"message": "Expiration month is not valid"
+	}
+}
+```
+---
+
+Request:
+
+```sh
+curl --request POST \
+  --url http://localhost:8080/api/validation \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"card_number": "5390802565179716",
 	"expiration_month": "10",
 	"expiration_year": ""
 }'
@@ -253,7 +279,7 @@ Response:
 {
 	"valid": false,
 	"error": {
-		"code": 6,
+		"code": 7,
 		"message": "Expiration year field is required"
 	}
 }
@@ -280,8 +306,35 @@ Response:
 {
 	"valid": false,
 	"error": {
-		"code": 7,
+		"code": 8,
 		"message": "Expiration year must be a number"
+	}
+}
+```
+
+---
+
+Request:
+
+```sh
+curl --request POST \
+  --url http://localhost:8080/api/validation \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"card_number": "5390802565179716",
+	"expiration_month": "10",
+	"expiration_year": "1950"
+}'
+```
+
+Response:
+
+```json
+{
+	"valid": false,
+	"error": {
+		"code": 9,
+		"message": "Expiration year is not valid"
 	}
 }
 ```
@@ -307,7 +360,7 @@ Response:
 {
 	"valid": false,
 	"error": {
-		"code": 8,
+		"code": 10,
 		"message": "The card has expired"
 	}
 }
