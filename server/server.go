@@ -64,9 +64,9 @@ func logMiddleware(next http.HandlerFunc, logger *slog.Logger) http.HandlerFunc 
 
 		rr := &responseRecorder{ResponseWriter: w, statusCode: http.StatusOK}
 
-		next.ServeHTTP(rr, r)
+		rr.Header().Set("X-Request-ID", requestId)
 
-		w.Header().Set("X-Request-ID", requestId)
+		next.ServeHTTP(rr, r)
 
 		logger.Info("Response",
 			slog.String("request_id", requestId),
@@ -93,8 +93,8 @@ type ErrorValidation struct {
 }
 
 func WriteJSON(w http.ResponseWriter, statusCode int, response ApiResponse) {
-	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
 	jsonBody, _ := json.Marshal(response)
 	w.Write(jsonBody)
 }
