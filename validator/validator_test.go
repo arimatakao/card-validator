@@ -64,6 +64,13 @@ func TestIsValid(t *testing.T) {
 			expectedValid:   false,
 		},
 		{
+			testName:        "Expiration month is not valid",
+			cardNumber:      "1234567812345670",
+			expirationMonth: "13",
+			expirationYear:  futureYear,
+			expectedValid:   false,
+		},
+		{
 			testName:        "Empty expiration year",
 			cardNumber:      "1234567812345670",
 			expirationMonth: futureMonth,
@@ -75,6 +82,13 @@ func TestIsValid(t *testing.T) {
 			cardNumber:      "1234567812345670",
 			expirationMonth: futureMonth,
 			expirationYear:  "xyz",
+			expectedValid:   false,
+		},
+		{
+			testName:        "Expiration year is not valid",
+			cardNumber:      "1234567812345670",
+			expirationMonth: futureMonth,
+			expirationYear:  "1950",
 			expectedValid:   false,
 		},
 		{
