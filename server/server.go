@@ -3,25 +3,32 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/arimatakao/card-validator/validator"
+	"github.com/google/uuid"
 )
 
 type server struct {
-	srv *http.Server
+	srv    *http.Server
+	logger *slog.Logger
 }
 
 func New(address string) server {
 	mux := http.NewServeMux()
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	mux.HandleFunc("/api/validation", Validation)
+	mux.HandleFunc("/api/validation", logMiddleware(Validation, logger))
 
 	return server{
 		srv: &http.Server{
 			Addr:    address,
 			Handler: mux,
 		},
+		logger: logger,
 	}
 }
 
@@ -31,6 +38,42 @@ func (s server) Run() error {
 
 func (s server) Shutdown(ctx context.Context) error {
 	return s.srv.Shutdown(ctx)
+}
+
+type responseRecorder struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rr *responseRecorder) WriteHeader(statusCode int) {
+	rr.statusCode = statusCode
+	rr.ResponseWriter.WriteHeader(statusCode)
+}
+
+func logMiddleware(next http.HandlerFunc, logger *slog.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		requestId := uuid.New().String()
+
+		logger.Info("Request",
+			slog.String("request_id", requestId),
+			slog.String("method", r.Method),
+			slog.String("path", r.URL.Path),
+		)
+
+		rr := &responseRecorder{ResponseWriter: w, statusCode: http.StatusOK}
+
+		next.ServeHTTP(rr, r)
+
+		w.Header().Set("X-Request-ID", requestId)
+
+		logger.Info("Response",
+			slog.String("request_id", requestId),
+			slog.Int("status", rr.statusCode),
+			slog.Duration("duration", time.Since(start)),
+		)
+	}
 }
 
 type Card struct {
